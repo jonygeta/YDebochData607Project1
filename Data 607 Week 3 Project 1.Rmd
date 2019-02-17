@@ -1,0 +1,71 @@
+---
+title: "Data 607 Week 3 Project 1"
+author: "Yohannes Deboch"
+date: "February 16, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load the library
+```{r}
+library(stringr)
+```
+
+# Load the data
+
+```{r}
+dt <- readLines("tournamentinfo.txt")
+head(dt)
+```
+# Remove unnecessary columns
+```{r}
+dt <- dt[-c(1:4)]
+head(dt)
+```
+# Remove un necessary rows
+```{r}
+# Remove rows
+dt <- str_remove(dt,"[-]+")
+# Remove empty rows
+dt <- dt[dt!=""]
+head(dt)
+```
+# Seperate the data into to group
+```{r}
+# subset
+group1 <- dt[seq(1,128,2)]
+group2 <- dt[seq(2,128,2)]
+```
+
+```{r}
+id <- as.integer(str_extract(group1, "\\d+"))
+name <- str_trim(str_extract(group1, "(\\w+\\s){2,3}"))
+state <- str_extract(group2, "\\w+")
+points <- as.numeric(str_extract(group1, "\\d+\\.\\d+"))
+rating <- as.integer(str_extract(str_extract(group2, "[^\\d]\\d{3,4}[^\\d]"), "\\d+"))
+opponents <- str_extract_all(str_extract_all(group1, "\\d+\\|"), "\\d+")
+win <- str_count(group1, "\\Q|W")
+loss <- str_count(group1, "\\Q|L")
+draws <- str_count(group1,"\\Q|D")
+```
+
+Opponent Rating
+
+```{r}
+len <- length(group1)
+opponent_rating <- len
+for (i in 1:len) 
+{  opponent_rating[i] <- mean(rating[as.numeric(unlist(opponents[id[i]]))])
+}
+opponent_rating <- round(opponent_rating)
+opponent_rating
+```
+# Make the data frame
+```{r}
+df <- data.frame("Player’s Name"=name, "Player’s State"=state, "Total Number of Points"=points,"Player’s Pre-Rating"= rating,"Average Pre Chess Rating of Opponents"= opponent_rating);
+df
+```
+
